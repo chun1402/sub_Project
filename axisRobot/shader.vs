@@ -15,14 +15,12 @@ out vec3 vertexColor;
 
 uniform int pointSize = 10;
 uniform mat4 MVP;
+uniform vec3 uniformColor; // 유니폼 변수로 색상을 설정
 
 void main() {
 	//TexCoords = aTexCoords;
 	//gl_Position = projection * view * model * vec4(aPos, 1.0);
-
 	gl_Position = MVP * vec4(aPos, 1.0);
-
 	gl_PointSize = pointSize;
-
 	vertexColor = aColor;
 }

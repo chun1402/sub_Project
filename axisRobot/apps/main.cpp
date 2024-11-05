@@ -9,19 +9,8 @@
 #include <glm/gtc/type_ptr.hpp> //value_ptr
 #include <iostream>
 #include "shader.hpp"
+#include "axisLine.hpp"
 
-// Vertex array for a simple line
-float lineVertices[] = {
-    0.0f, 0.0f, 0.0f, // Start point
-    0.5f, 0.5f, 0.0f  // End point
-};
-
-void drawLine() {
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glVertexPointer(3, GL_FLOAT, 0, lineVertices);
-    glDrawArrays(GL_LINES, 0, 2);
-    glDisableClientState(GL_VERTEX_ARRAY);
-}
 double fov = 45.0f;
 glm::vec3 vecDir = glm::vec3(80., 0., 0.);
 glm::vec3 vecPos = glm::vec3(0, -2.5, 1.);
@@ -42,6 +31,7 @@ void processInput(GLFWwindow *window){
 	if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 }
+
 glm::mat4 makeViewMat(const glm::vec3 &pos, const glm::vec3 &dir) {
 	glm::mat4 mView = glm::mat4(1.0f);
 	mView = glm::rotate(mView, glm::radians(-dir.x), AxisX);
@@ -50,6 +40,7 @@ glm::mat4 makeViewMat(const glm::vec3 &pos, const glm::vec3 &dir) {
 	mView = glm::translate(mView, -pos);
 	return mView;
 }
+
 int main(int argc, char** argv) {
 	// Setup window
 	glfwSetErrorCallback(glfw_error_callback);
@@ -105,14 +96,33 @@ int main(int argc, char** argv) {
 	// Our state
 	bool show_demo_window = true;
 	bool show_another_window = true;
+	bool show_line_setting = true;
+	bool show_color_setting = true;
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-	glm::mat4 matProj, matView;
-
+	
 	glEnable(GL_DEPTH_TEST);
 	//shader
 	Shader ourShader("../shader.vs", "../shader.fs"); // you can name your shader files however
 	ourShader.use(); // don't forget to activate/use the shader before setting uniforms!
-						  // either set it manually like so:
+
+	glm::mat4 matProj, matView;
+	
+	// 6axis
+	AxisLine axisLine1;
+	AxisLine axisLine2;
+	AxisLine axisLine3;
+	AxisLine axisLine4;
+	AxisLine axisLine5;
+	AxisLine axisLine6;
+
+	// clolor
+	glm::vec3 lineColor1 = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 lineColor2 = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 lineColor3 = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 lineColor4 = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 lineColor5 = glm::vec3(0.0f, 0.0f, 0.0f);
+	glm::vec3 lineColor6 = glm::vec3(0.0f, 0.0f, 0.0f);
+
 	// Main loop
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
@@ -126,17 +136,159 @@ int main(int argc, char** argv) {
 		keyboard_camera(window, 0.01);
 
 		// imgui window
-		if (show_demo_window)
-			ImGui::ShowDemoWindow(&show_demo_window);
+		//if (show_demo_window)
+		//	ImGui::ShowDemoWindow(&show_demo_window);
 		if (show_another_window) {
-			ImGui::Begin("Another Window", &show_another_window);   			
-			ImGui::Text("Hello from another window!");
+			ImGui::Begin("Another Window");   			
+			ImGui::Text("Hello window!");
 			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-			if (ImGui::Button("Close Me"))
-				show_another_window = false;
+			//if (ImGui::Button("Close Me"))
+			//	show_another_window = false;
+			if (ImGui::Button("Open line setting"))
+				show_line_setting = true;
+			if (ImGui::Button("Open color setting"))
+				show_color_setting = true;
 			ImGui::End();
 		}
-		
+
+		if(show_line_setting) {
+			ImGui::Begin("Line setting", &show_line_setting, ImGuiWindowFlags_AlwaysAutoResize);   			
+			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+
+			ImGui::Separator();
+			ImGui::Text("Line 1 setting");
+			axisLine1.line.startPosition = glm::vec3(0.0f, 0.0f, 0.0f); // 시작점
+			static float length1 = 1.0f;
+			ImGui::InputFloat("Lenght1", &length1, 0.01f, 1.0f, "%.3f");
+			static float angle1 = 1.0f;
+			ImGui::InputFloat("Angle1", &angle1, 1.0f, 1.0f, "%.3f");
+			axisLine1.line.length = length1; // 길이
+			axisLine1.line.angle = angle1; // 각도
+			axisLine1.line.calculateEndPosition();
+			static float lineWidth1 = 1.0f;
+			ImGui::SliderFloat("Line width1", &lineWidth1, 1, 20, "%.0f");			
+			axisLine1.mLineWidth = lineWidth1;
+			ImGui::Separator();
+
+			ImGui::Text("Line 2 setting");
+			axisLine2.line.startPosition = axisLine1.line.endPosition; // 시작점
+			static float length2 = 1.0f;
+			ImGui::InputFloat("Lenght2", &length2, 0.01f, 1.0f, "%.3f");
+			static float angle2 = 1.0f;
+			ImGui::InputFloat("Angle2", &angle2, 1.0f, 1.0f, "%.3f");
+			axisLine2.line.length = length2; // 길이
+			axisLine2.line.angle = angle2; // 각도
+			axisLine2.line.calculateEndPosition();
+			static float lineWidth2 = 1.0f;
+			ImGui::SliderFloat("Line width2", &lineWidth2, 1, 20, "%.0f");			
+			axisLine2.mLineWidth = lineWidth2;
+			ImGui::Separator();
+
+			ImGui::Text("Line 3 setting");
+			axisLine3.line.startPosition = axisLine2.line.endPosition; // 시작점
+			static float length3 = 1.0f;
+			ImGui::InputFloat("Lenght3", &length3, 0.01f, 1.0f, "%.3f");
+			static float angle3 = 1.0f;
+			ImGui::InputFloat("Angle3", &angle3, 1.0f, 1.0f, "%.3f");
+			axisLine3.line.length = length3; // 길이
+			axisLine3.line.angle = angle3; // 각도
+			axisLine3.line.calculateEndPosition();
+			static float lineWidth3 = 1.0f;
+			ImGui::SliderFloat("Line width3", &lineWidth3, 1, 20, "%.0f");			
+			axisLine3.mLineWidth = lineWidth3;
+			ImGui::Separator();
+
+			ImGui::Text("Line 4 setting");
+			axisLine4.line.startPosition = axisLine3.line.endPosition; // 시작점
+			static float length4 = 1.0f;
+			ImGui::InputFloat("Lenght4", &length4, 0.01f, 1.0f, "%.3f");
+			static float angle4 = 1.0f;
+			ImGui::InputFloat("Angle4", &angle4, 1.0f, 1.0f, "%.3f");
+			axisLine4.line.length = length4; // 길이
+			axisLine4.line.angle = angle4; // 각도
+			axisLine4.line.calculateEndPosition();
+			static float lineWidth4 = 1.0f;
+			ImGui::SliderFloat("Line width4", &lineWidth4, 1, 20, "%.0f");			
+			axisLine4.mLineWidth = lineWidth4;
+			ImGui::Separator();
+
+			ImGui::Text("Line 5 setting");
+			axisLine5.line.startPosition = axisLine4.line.endPosition; // 시작점
+			static float length5 = 1.0f;
+			ImGui::InputFloat("Lenght5", &length5, 0.01f, 1.0f, "%.3f");
+			static float angle5 = 1.0f;
+			ImGui::InputFloat("Angle5", &angle5, 1.0f, 1.0f, "%.3f");
+			axisLine5.line.length = length5; // 길이
+			axisLine5.line.angle = angle5; // 각도
+			axisLine5.line.calculateEndPosition();
+			static float lineWidth5 = 1.0f;
+			ImGui::SliderFloat("Line width5", &lineWidth5, 1, 20, "%.0f");			
+			axisLine5.mLineWidth = lineWidth5;
+			ImGui::Separator();
+
+			ImGui::Text("Line 6 setting");
+			axisLine6.line.startPosition = axisLine5.line.endPosition; // 시작점
+			static float length6 = 1.0f;
+			ImGui::InputFloat("Lenght6", &length6, 0.01f, 1.0f, "%.3f");
+			static float angle6 = 1.0f;
+			ImGui::InputFloat("Angle6", &angle6, 1.0f, 1.0f, "%.3f");
+			axisLine6.line.length = length6; // 길이
+			axisLine6.line.angle = angle6; // 각도
+			axisLine6.line.calculateEndPosition();
+			static float lineWidth6 = 1.0f;
+			ImGui::SliderFloat("Line width6", &lineWidth6, 1, 20, "%.0f");			
+			axisLine6.mLineWidth = lineWidth6;
+			ImGui::Separator();
+			ImGui::End();
+
+		}
+
+		if(show_color_setting) {
+			ImGui::Begin("color setting", &show_color_setting, ImGuiWindowFlags_AlwaysAutoResize);   			
+			ImGui::Text("Colr Setting window!");
+			ImGui::Separator();
+			ImGui::Text("Line color!");
+			static float col1[3] = { 0.0f,0.0f,0.0f };
+			static float col2[3] = { 1.0f,1.0f,1.0f };
+			static float col3[3] = { 0.0f,0.0f,0.0f };
+			static float col4[3] = { 1.0f,1.0f,1.0f };
+			static float col5[3] = { 0.0f,0.0f,0.0f };
+			static float col6[3] = { 1.0f,1.0f,1.0f };
+
+			ImGui::ColorEdit3("color 1", col1);
+			ImGui::ColorEdit3("color 2", col2);
+			ImGui::ColorEdit3("color 3", col3);
+			ImGui::ColorEdit3("color 4", col4);
+			ImGui::ColorEdit3("color 5", col5);
+			ImGui::ColorEdit3("color 6", col6);
+
+			lineColor1.x = col1[0]; lineColor1.y = col1[1]; lineColor1.z = col1[2]; 
+			lineColor2.x = col2[0]; lineColor2.y = col2[1]; lineColor2.z = col2[2]; 
+			lineColor3.x = col3[0]; lineColor3.y = col3[1]; lineColor3.z = col3[2]; 
+			lineColor4.x = col4[0]; lineColor4.y = col4[1]; lineColor4.z = col4[2]; 
+			lineColor5.x = col5[0]; lineColor5.y = col5[1]; lineColor5.z = col5[2]; 
+			lineColor6.x = col6[0]; lineColor6.y = col6[1]; lineColor6.z = col6[2]; 
+
+			axisLine1.mLineColor = lineColor1;
+			axisLine2.mLineColor = lineColor2;
+			axisLine3.mLineColor = lineColor3;
+			axisLine4.mLineColor = lineColor4;
+			axisLine5.mLineColor = lineColor5;
+			axisLine6.mLineColor = lineColor6;
+
+			axisLine1.mPointColor = lineColor1;
+			axisLine2.mPointColor = lineColor2;
+			axisLine3.mPointColor = lineColor3;
+			axisLine4.mPointColor = lineColor4;
+			axisLine5.mPointColor = lineColor5;
+			axisLine6.mPointColor = lineColor6;
+
+			ImGui::Separator();
+
+			ImGui::Text("Point color!");
+			ImGui::End();
+		}
+
 		// Rendering
 		ImGui::Render();
 		int display_w, display_h;
@@ -146,30 +298,26 @@ int main(int argc, char** argv) {
 		glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		// Draw line using OpenGL
-		drawLine();
-		//update & draw entities.
-		
 		//here draw!!!!/////////////////////////////////////////////////////////////////////
-
-
-
+		axisLine1.draw(); 
+		axisLine2.draw(); 
+		axisLine3.draw(); 
+		axisLine4.draw(); 
+		axisLine5.draw(); 
+		axisLine6.draw(); 
 		///////////////////////////////////////////////////////////////////////////////////
 
-		// render container
-		ourShader.use();
+		// shader
 		glm::mat4 model = glm::mat4(1.0f);
-		//draw entities on background.
 		matProj = glm::perspective(glm::radians(fov), (display_w*1.)/(display_h*1.), 0.1, 10000.);
 		matView = makeViewMat(vecPos, vecDir);
 		glm::mat4 MVP = matProj * matView * model;
-		ourShader.use(); 		
 		GLuint MVPLoc = glGetUniformLocation(ourShader.ID, "MVP");
 		glUniformMatrix4fv(MVPLoc, 1, GL_FALSE, glm::value_ptr(MVP));
+
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		glfwSwapBuffers(window);
 	}
-
 
 	// Cleanup
 	ImGui_ImplOpenGL3_Shutdown();
