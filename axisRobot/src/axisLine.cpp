@@ -23,7 +23,7 @@ void AxisLine::drawLine() {
     glEnableVertexAttribArray(5);
 
     // 선 굵기 설정
-    glLineWidth(mLineWidth); // 원하는 굵기로 설정
+    glLineWidth(mLineWidth); 
 
     glBindVertexArray(VAO);
     glDrawArrays(GL_LINES, 0, 2);
@@ -57,8 +57,9 @@ void AxisLine::drawPoint() {
     // 색상 속성
     glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, color));
     glEnableVertexAttribArray(5);
+    
+	 glPointSize(mPointSize);
 
-    glPointSize(10.0f);
     glBindVertexArray(VAO);
     glDrawArrays(GL_POINTS, 0, 2);
 

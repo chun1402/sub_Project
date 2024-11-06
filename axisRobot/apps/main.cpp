@@ -11,7 +11,9 @@
 #include "shader.hpp"
 #include "axisLine.hpp"
 
+//camera
 double fov = 45.0f;
+
 glm::vec3 vecDir = glm::vec3(80., 0., 0.);
 glm::vec3 vecPos = glm::vec3(0, -2.5, 1.);
 
@@ -24,14 +26,14 @@ void scroll_callback(GLFWwindow *, double, double yoffset);
 void keyboard_camera(GLFWwindow* window, float);
 
 static void glfw_error_callback(int error, const char* description) {
-	fprintf(stderr, "Glfw Error %d: %s\n", error, description);
-}
+	fprintf(stderr, "Glfw Error %d: %s\n", error, description); }
 
 void processInput(GLFWwindow *window){	
 	if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
 }
 
+//glm::mat view
 glm::mat4 makeViewMat(const glm::vec3 &pos, const glm::vec3 &dir) {
 	glm::mat4 mView = glm::mat4(1.0f);
 	mView = glm::rotate(mView, glm::radians(-dir.x), AxisX);
@@ -75,8 +77,7 @@ int main(int argc, char** argv) {
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1); // Enable vsync
 
-	glewInit();	// Add for using shader.
-					// Mouse & KeyBoard event functions.
+	glewInit();	// Add for using shader. // Mouse & KeyBoard event functions.
 	glfwSetCursorPosCallback(window, mouse_callback);  // Mouse click
 	glfwSetScrollCallback(window, scroll_callback);    // Mouse wheel
 
@@ -98,30 +99,25 @@ int main(int argc, char** argv) {
 	bool show_another_window = true;
 	bool show_line_setting = true;
 	bool show_color_setting = true;
+	bool show_line_position = true;
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 	
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_PROGRAM_POINT_SIZE); //point size setting 하려면 필요함.
+
 	//shader
 	Shader ourShader("../shader.vs", "../shader.fs"); // you can name your shader files however
 	ourShader.use(); // don't forget to activate/use the shader before setting uniforms!
 
 	glm::mat4 matProj, matView;
 	
-	// 6axis
+	// 6axis class
 	AxisLine axisLine1;
 	AxisLine axisLine2;
 	AxisLine axisLine3;
 	AxisLine axisLine4;
 	AxisLine axisLine5;
 	AxisLine axisLine6;
-
-	// clolor
-	glm::vec3 lineColor1 = glm::vec3(0.0f, 0.0f, 0.0f);
-	glm::vec3 lineColor2 = glm::vec3(0.0f, 0.0f, 0.0f);
-	glm::vec3 lineColor3 = glm::vec3(0.0f, 0.0f, 0.0f);
-	glm::vec3 lineColor4 = glm::vec3(0.0f, 0.0f, 0.0f);
-	glm::vec3 lineColor5 = glm::vec3(0.0f, 0.0f, 0.0f);
-	glm::vec3 lineColor6 = glm::vec3(0.0f, 0.0f, 0.0f);
 
 	// Main loop
 	while (!glfwWindowShouldClose(window)) {
@@ -140,7 +136,7 @@ int main(int argc, char** argv) {
 		//	ImGui::ShowDemoWindow(&show_demo_window);
 		if (show_another_window) {
 			ImGui::Begin("Another Window");   			
-			ImGui::Text("Hello window!");
+			ImGui::Text("line, color open window!");
 			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 			//if (ImGui::Button("Close Me"))
 			//	show_another_window = false;
@@ -148,14 +144,13 @@ int main(int argc, char** argv) {
 				show_line_setting = true;
 			if (ImGui::Button("Open color setting"))
 				show_color_setting = true;
+			if (ImGui::Button("Open line position"))
+				show_line_position = true;
 			ImGui::End();
 		}
 
 		if(show_line_setting) {
 			ImGui::Begin("Line setting", &show_line_setting, ImGuiWindowFlags_AlwaysAutoResize);   			
-			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-
-			ImGui::Separator();
 			ImGui::Text("Line 1 setting");
 			axisLine1.line.startPosition = glm::vec3(0.0f, 0.0f, 0.0f); // 시작점
 			static float length1 = 1.0f;
@@ -168,6 +163,9 @@ int main(int argc, char** argv) {
 			static float lineWidth1 = 1.0f;
 			ImGui::SliderFloat("Line width1", &lineWidth1, 1, 20, "%.0f");			
 			axisLine1.mLineWidth = lineWidth1;
+			static float pointSize1 = 10.0f;
+			ImGui::SliderFloat("Point size1", &pointSize1, 1, 100, "%.0f");			
+			axisLine1.mPointSize = pointSize1;
 			ImGui::Separator();
 
 			ImGui::Text("Line 2 setting");
@@ -182,6 +180,9 @@ int main(int argc, char** argv) {
 			static float lineWidth2 = 1.0f;
 			ImGui::SliderFloat("Line width2", &lineWidth2, 1, 20, "%.0f");			
 			axisLine2.mLineWidth = lineWidth2;
+			static float pointSize2 = 10.0f;
+			ImGui::SliderFloat("Point size2", &pointSize2, 1, 100, "%.0f");			
+			axisLine2.mPointSize = pointSize2;
 			ImGui::Separator();
 
 			ImGui::Text("Line 3 setting");
@@ -196,6 +197,9 @@ int main(int argc, char** argv) {
 			static float lineWidth3 = 1.0f;
 			ImGui::SliderFloat("Line width3", &lineWidth3, 1, 20, "%.0f");			
 			axisLine3.mLineWidth = lineWidth3;
+			static float pointSize3 = 10.0f;
+			ImGui::SliderFloat("Point size3", &pointSize3, 1, 100, "%.0f");			
+			axisLine3.mPointSize = pointSize3;
 			ImGui::Separator();
 
 			ImGui::Text("Line 4 setting");
@@ -210,6 +214,9 @@ int main(int argc, char** argv) {
 			static float lineWidth4 = 1.0f;
 			ImGui::SliderFloat("Line width4", &lineWidth4, 1, 20, "%.0f");			
 			axisLine4.mLineWidth = lineWidth4;
+			static float pointSize4 = 10.0f;
+			ImGui::SliderFloat("Point size4", &pointSize4, 1, 100, "%.0f");			
+			axisLine4.mPointSize = pointSize4;
 			ImGui::Separator();
 
 			ImGui::Text("Line 5 setting");
@@ -224,6 +231,9 @@ int main(int argc, char** argv) {
 			static float lineWidth5 = 1.0f;
 			ImGui::SliderFloat("Line width5", &lineWidth5, 1, 20, "%.0f");			
 			axisLine5.mLineWidth = lineWidth5;
+			static float pointSize5 = 10.0f;
+			ImGui::SliderFloat("Point size5", &pointSize5, 1, 100, "%.0f");			
+			axisLine5.mPointSize = pointSize5;
 			ImGui::Separator();
 
 			ImGui::Text("Line 6 setting");
@@ -238,9 +248,11 @@ int main(int argc, char** argv) {
 			static float lineWidth6 = 1.0f;
 			ImGui::SliderFloat("Line width6", &lineWidth6, 1, 20, "%.0f");			
 			axisLine6.mLineWidth = lineWidth6;
+			static float pointSize6 = 10.0f;
+			ImGui::SliderFloat("Point size6", &pointSize6, 1, 100, "%.0f");			
+			axisLine6.mPointSize = pointSize6;
 			ImGui::Separator();
 			ImGui::End();
-
 		}
 
 		if(show_color_setting) {
@@ -261,32 +273,63 @@ int main(int argc, char** argv) {
 			ImGui::ColorEdit3("color 4", col4);
 			ImGui::ColorEdit3("color 5", col5);
 			ImGui::ColorEdit3("color 6", col6);
-
-			lineColor1.x = col1[0]; lineColor1.y = col1[1]; lineColor1.z = col1[2]; 
-			lineColor2.x = col2[0]; lineColor2.y = col2[1]; lineColor2.z = col2[2]; 
-			lineColor3.x = col3[0]; lineColor3.y = col3[1]; lineColor3.z = col3[2]; 
-			lineColor4.x = col4[0]; lineColor4.y = col4[1]; lineColor4.z = col4[2]; 
-			lineColor5.x = col5[0]; lineColor5.y = col5[1]; lineColor5.z = col5[2]; 
-			lineColor6.x = col6[0]; lineColor6.y = col6[1]; lineColor6.z = col6[2]; 
-
-			axisLine1.mLineColor = lineColor1;
-			axisLine2.mLineColor = lineColor2;
-			axisLine3.mLineColor = lineColor3;
-			axisLine4.mLineColor = lineColor4;
-			axisLine5.mLineColor = lineColor5;
-			axisLine6.mLineColor = lineColor6;
-
-			axisLine1.mPointColor = lineColor1;
-			axisLine2.mPointColor = lineColor2;
-			axisLine3.mPointColor = lineColor3;
-			axisLine4.mPointColor = lineColor4;
-			axisLine5.mPointColor = lineColor5;
-			axisLine6.mPointColor = lineColor6;
+			//line color
+			axisLine1.mLineColor = glm::make_vec3(col1);
+			axisLine2.mLineColor = glm::make_vec3(col2);
+			axisLine3.mLineColor = glm::make_vec3(col3);
+			axisLine4.mLineColor = glm::make_vec3(col4);
+			axisLine5.mLineColor = glm::make_vec3(col5);
+			axisLine6.mLineColor = glm::make_vec3(col6);
+			//point color
+			axisLine1.mPointColor = glm::make_vec3(col1); 
+			axisLine2.mPointColor = glm::make_vec3(col2); 
+			axisLine3.mPointColor = glm::make_vec3(col3); 
+			axisLine4.mPointColor = glm::make_vec3(col4); 
+			axisLine5.mPointColor = glm::make_vec3(col5); 
+			axisLine6.mPointColor = glm::make_vec3(col6); 
 
 			ImGui::Separator();
-
-			ImGui::Text("Point color!");
 			ImGui::End();
+		}
+		if(show_line_position) {
+			ImGui::Begin("Line position", &show_line_position, ImGuiWindowFlags_AlwaysAutoResize);   			
+			ImGui::Text("Line 1 Position    ");
+			ImGui::Text("x:%.2f", axisLine1.line.startPosition.x);
+			ImGui::Text("y:%.2f", axisLine1.line.startPosition.y);
+			ImGui::Text("z:%.2f", axisLine1.line.startPosition.z);
+			ImGui::Separator();
+
+			ImGui::Text("Line 2 Position   ");
+			ImGui::Text("x:%.2f", axisLine2.line.startPosition.x);
+			ImGui::Text("y:%.2f", axisLine2.line.startPosition.y);
+			ImGui::Text("z:%.2f", axisLine2.line.startPosition.z);
+			ImGui::Separator();		
+			
+			ImGui::Text("Line 3 Position   ");
+			ImGui::Text("x:%.2f", axisLine3.line.startPosition.x);
+			ImGui::Text("y:%.2f", axisLine3.line.startPosition.y);
+			ImGui::Text("z:%.2f", axisLine3.line.startPosition.z);
+			ImGui::Separator();				
+
+			ImGui::Text("Line 4 Position   ");
+			ImGui::Text("x:%.2f", axisLine4.line.startPosition.x);
+			ImGui::Text("y:%.2f", axisLine4.line.startPosition.y);
+			ImGui::Text("z:%.2f", axisLine4.line.startPosition.z);
+			ImGui::Separator();				
+
+			ImGui::Text("Line 5 Position   ");
+			ImGui::Text("x:%.2f", axisLine5.line.startPosition.x);
+			ImGui::Text("y:%.2f", axisLine5.line.startPosition.y);
+			ImGui::Text("z:%.2f", axisLine5.line.startPosition.z);
+			ImGui::Separator();				
+
+			ImGui::Text("Line 6 Position   ");
+			ImGui::Text("x:%.2f", axisLine6.line.startPosition.x);
+			ImGui::Text("y:%.2f", axisLine6.line.startPosition.y);
+			ImGui::Text("z:%.2f", axisLine6.line.startPosition.z);
+			ImGui::Separator();				
+			ImGui::End();
+
 		}
 
 		// Rendering
@@ -298,16 +341,15 @@ int main(int argc, char** argv) {
 		glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//here draw!!!!/////////////////////////////////////////////////////////////////////
+		// draw
 		axisLine1.draw(); 
 		axisLine2.draw(); 
 		axisLine3.draw(); 
 		axisLine4.draw(); 
 		axisLine5.draw(); 
 		axisLine6.draw(); 
-		///////////////////////////////////////////////////////////////////////////////////
 
-		// shader
+		// shader 
 		glm::mat4 model = glm::mat4(1.0f);
 		matProj = glm::perspective(glm::radians(fov), (display_w*1.)/(display_h*1.), 0.1, 10000.);
 		matView = makeViewMat(vecPos, vecDir);

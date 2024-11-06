@@ -5,7 +5,7 @@
 #include <GLFW/glfw3.h> // Will drag system OpenGL headers
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp> //value_ptr
+#include <glm/gtc/type_ptr.hpp> 
 #include <iostream>
 #include <vector>
 
@@ -23,9 +23,10 @@ public:
 			// Calculate end position based on start position, length, and angle
 			endPosition.x = startPosition.x + length * cos(angleRad);
 			endPosition.y = startPosition.y + length * sin(angleRad);
-			endPosition.z = startPosition.z; // Assuming the line is on the XY plane
+			endPosition.z = startPosition.z;
 		}
 	};
+
 	struct Vertex {
     glm::vec3 position;
     glm::vec3 color;
@@ -35,6 +36,7 @@ public:
 	glm::vec3 mLineColor = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 mPointColor = glm::vec3(0.0f, 0.0f, 0.0f);
 	float mLineWidth = 1.0f;
+	float mPointSize = 10.0f;
 	void draw();
 private:
 	void drawLine();
