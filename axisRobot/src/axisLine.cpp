@@ -1,4 +1,5 @@
 #include "axisLine.hpp"
+
 void AxisLine::drawLine() {
     Vertex vertices[2] = {
         {line.startPosition, mLineColor}, 
@@ -70,10 +71,8 @@ void AxisLine::drawPoint() {
     glDeleteVertexArrays(1, &VAO);
 }
 
-
 void AxisLine::draw() {
 	drawLine();
 	drawPoint();
 }
-
 

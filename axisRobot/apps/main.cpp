@@ -127,6 +127,7 @@ int main(int argc, char** argv) {
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
+		
 		//input keyboard
 		processInput(window);
 		keyboard_camera(window, 0.01);
@@ -138,8 +139,6 @@ int main(int argc, char** argv) {
 			ImGui::Begin("Another Window");   			
 			ImGui::Text("line, color open window!");
 			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-			//if (ImGui::Button("Close Me"))
-			//	show_another_window = false;
 			if (ImGui::Button("Open line setting"))
 				show_line_setting = true;
 			if (ImGui::Button("Open color setting"))
@@ -147,6 +146,48 @@ int main(int argc, char** argv) {
 			if (ImGui::Button("Open line position"))
 				show_line_position = true;
 			ImGui::End();
+		}
+
+		//line start position, end position
+		if(show_line_position) {
+			ImGui::Begin("Line position", &show_line_position, ImGuiWindowFlags_AlwaysAutoResize);   			
+			ImGui::Text("Line 1 Position    ");
+			ImGui::Text("x:%.2f", axisLine1.line.startPosition.x);
+			ImGui::Text("y:%.2f", axisLine1.line.startPosition.y);
+			ImGui::Text("z:%.2f", axisLine1.line.startPosition.z);
+			ImGui::Separator();
+
+			ImGui::Text("Line 2 Position   ");
+			ImGui::Text("x:%.2f", axisLine2.line.startPosition.x);
+			ImGui::Text("y:%.2f", axisLine2.line.startPosition.y);
+			ImGui::Text("z:%.2f", axisLine2.line.startPosition.z);
+			ImGui::Separator();		
+			
+			ImGui::Text("Line 3 Position   ");
+			ImGui::Text("x:%.2f", axisLine3.line.startPosition.x);
+			ImGui::Text("y:%.2f", axisLine3.line.startPosition.y);
+			ImGui::Text("z:%.2f", axisLine3.line.startPosition.z);
+			ImGui::Separator();				
+
+			ImGui::Text("Line 4 Position   ");
+			ImGui::Text("x:%.2f", axisLine4.line.startPosition.x);
+			ImGui::Text("y:%.2f", axisLine4.line.startPosition.y);
+			ImGui::Text("z:%.2f", axisLine4.line.startPosition.z);
+			ImGui::Separator();				
+
+			ImGui::Text("Line 5 Position   ");
+			ImGui::Text("x:%.2f", axisLine5.line.startPosition.x);
+			ImGui::Text("y:%.2f", axisLine5.line.startPosition.y);
+			ImGui::Text("z:%.2f", axisLine5.line.startPosition.z);
+			ImGui::Separator();				
+
+			ImGui::Text("Line 6 Position   ");
+			ImGui::Text("x:%.2f", axisLine6.line.startPosition.x);
+			ImGui::Text("y:%.2f", axisLine6.line.startPosition.y);
+			ImGui::Text("z:%.2f", axisLine6.line.startPosition.z);
+			ImGui::Separator();				
+			ImGui::End();
+
 		}
 
 		if(show_line_setting) {
@@ -291,46 +332,7 @@ int main(int argc, char** argv) {
 			ImGui::Separator();
 			ImGui::End();
 		}
-		if(show_line_position) {
-			ImGui::Begin("Line position", &show_line_position, ImGuiWindowFlags_AlwaysAutoResize);   			
-			ImGui::Text("Line 1 Position    ");
-			ImGui::Text("x:%.2f", axisLine1.line.startPosition.x);
-			ImGui::Text("y:%.2f", axisLine1.line.startPosition.y);
-			ImGui::Text("z:%.2f", axisLine1.line.startPosition.z);
-			ImGui::Separator();
 
-			ImGui::Text("Line 2 Position   ");
-			ImGui::Text("x:%.2f", axisLine2.line.startPosition.x);
-			ImGui::Text("y:%.2f", axisLine2.line.startPosition.y);
-			ImGui::Text("z:%.2f", axisLine2.line.startPosition.z);
-			ImGui::Separator();		
-			
-			ImGui::Text("Line 3 Position   ");
-			ImGui::Text("x:%.2f", axisLine3.line.startPosition.x);
-			ImGui::Text("y:%.2f", axisLine3.line.startPosition.y);
-			ImGui::Text("z:%.2f", axisLine3.line.startPosition.z);
-			ImGui::Separator();				
-
-			ImGui::Text("Line 4 Position   ");
-			ImGui::Text("x:%.2f", axisLine4.line.startPosition.x);
-			ImGui::Text("y:%.2f", axisLine4.line.startPosition.y);
-			ImGui::Text("z:%.2f", axisLine4.line.startPosition.z);
-			ImGui::Separator();				
-
-			ImGui::Text("Line 5 Position   ");
-			ImGui::Text("x:%.2f", axisLine5.line.startPosition.x);
-			ImGui::Text("y:%.2f", axisLine5.line.startPosition.y);
-			ImGui::Text("z:%.2f", axisLine5.line.startPosition.z);
-			ImGui::Separator();				
-
-			ImGui::Text("Line 6 Position   ");
-			ImGui::Text("x:%.2f", axisLine6.line.startPosition.x);
-			ImGui::Text("y:%.2f", axisLine6.line.startPosition.y);
-			ImGui::Text("z:%.2f", axisLine6.line.startPosition.z);
-			ImGui::Separator();				
-			ImGui::End();
-
-		}
 
 		// Rendering
 		ImGui::Render();
@@ -370,8 +372,8 @@ int main(int argc, char** argv) {
 	glfwTerminate();
 
 	return 0;
-
 }
+
 void keyboard_camera(GLFWwindow* window, float) {
 	const float camSpeed = 0.01f; 	
 	if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
