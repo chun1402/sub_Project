@@ -118,6 +118,7 @@ int main(int argc, char** argv) {
 	AxisLine axisLine4;
 	AxisLine axisLine5;
 	AxisLine axisLine6;
+	std::vector<AxisLine> skeleton = {axisLine1, axisLine2, axisLine3, axisLine4, axisLine5, axisLine6};
 
 	// Main loop
 	while (!glfwWindowShouldClose(window)) {
@@ -155,36 +156,48 @@ int main(int argc, char** argv) {
 			ImGui::Text("x:%.2f", axisLine1.line.startPosition.x);
 			ImGui::Text("y:%.2f", axisLine1.line.startPosition.y);
 			ImGui::Text("z:%.2f", axisLine1.line.startPosition.z);
+			ImGui::Text("length:%.2f", axisLine1.line.length);
+			ImGui::Text("angle:%.2f", axisLine1.line.angle);
 			ImGui::Separator();
 
 			ImGui::Text("Line 2 Position   ");
 			ImGui::Text("x:%.2f", axisLine2.line.startPosition.x);
 			ImGui::Text("y:%.2f", axisLine2.line.startPosition.y);
 			ImGui::Text("z:%.2f", axisLine2.line.startPosition.z);
+			ImGui::Text("length:%.2f", axisLine2.line.length);
+			ImGui::Text("angle:%.2f", axisLine2.line.angle);
 			ImGui::Separator();		
-			
+
 			ImGui::Text("Line 3 Position   ");
 			ImGui::Text("x:%.2f", axisLine3.line.startPosition.x);
 			ImGui::Text("y:%.2f", axisLine3.line.startPosition.y);
 			ImGui::Text("z:%.2f", axisLine3.line.startPosition.z);
+			ImGui::Text("length:%.2f", axisLine3.line.length);
+			ImGui::Text("angle:%.2f", axisLine3.line.angle);
 			ImGui::Separator();				
 
 			ImGui::Text("Line 4 Position   ");
 			ImGui::Text("x:%.2f", axisLine4.line.startPosition.x);
 			ImGui::Text("y:%.2f", axisLine4.line.startPosition.y);
 			ImGui::Text("z:%.2f", axisLine4.line.startPosition.z);
+			ImGui::Text("length:%.2f", axisLine4.line.length);
+			ImGui::Text("angle:%.2f", axisLine4.line.angle);
 			ImGui::Separator();				
 
 			ImGui::Text("Line 5 Position   ");
 			ImGui::Text("x:%.2f", axisLine5.line.startPosition.x);
 			ImGui::Text("y:%.2f", axisLine5.line.startPosition.y);
 			ImGui::Text("z:%.2f", axisLine5.line.startPosition.z);
+			ImGui::Text("length:%.2f", axisLine5.line.length);
+			ImGui::Text("angle:%.2f", axisLine5.line.angle);
 			ImGui::Separator();				
 
 			ImGui::Text("Line 6 Position   ");
 			ImGui::Text("x:%.2f", axisLine6.line.startPosition.x);
 			ImGui::Text("y:%.2f", axisLine6.line.startPosition.y);
 			ImGui::Text("z:%.2f", axisLine6.line.startPosition.z);
+			ImGui::Text("length:%.2f", axisLine6.line.length);
+			ImGui::Text("angle:%.2f", axisLine6.line.angle);
 			ImGui::Separator();				
 			ImGui::End();
 
@@ -196,7 +209,7 @@ int main(int argc, char** argv) {
 			axisLine1.line.startPosition = glm::vec3(0.0f, 0.0f, 0.0f); // 시작점
 			static float length1 = 1.0f;
 			ImGui::InputFloat("Lenght1", &length1, 0.01f, 1.0f, "%.3f");
-			static float angle1 = 1.0f;
+			static float angle1 = 0.0f;
 			ImGui::InputFloat("Angle1", &angle1, 1.0f, 1.0f, "%.3f");
 			axisLine1.line.length = length1; // 길이
 			axisLine1.line.angle = angle1; // 각도
@@ -213,8 +226,8 @@ int main(int argc, char** argv) {
 			axisLine2.line.startPosition = axisLine1.line.endPosition; // 시작점
 			static float length2 = 1.0f;
 			ImGui::InputFloat("Lenght2", &length2, 0.01f, 1.0f, "%.3f");
-			static float angle2 = 1.0f;
-			ImGui::InputFloat("Angle2", &angle2, 1.0f, 1.0f, "%.3f");
+			static float angle2 = 0.0f;
+			ImGui::InputFloat("Angle2", &angle2, 0.0f, 1.0f, "%.3f");
 			axisLine2.line.length = length2; // 길이
 			axisLine2.line.angle = angle2; // 각도
 			axisLine2.line.calculateEndPosition();
@@ -230,7 +243,7 @@ int main(int argc, char** argv) {
 			axisLine3.line.startPosition = axisLine2.line.endPosition; // 시작점
 			static float length3 = 1.0f;
 			ImGui::InputFloat("Lenght3", &length3, 0.01f, 1.0f, "%.3f");
-			static float angle3 = 1.0f;
+			static float angle3 = 0.0f;
 			ImGui::InputFloat("Angle3", &angle3, 1.0f, 1.0f, "%.3f");
 			axisLine3.line.length = length3; // 길이
 			axisLine3.line.angle = angle3; // 각도
@@ -247,7 +260,7 @@ int main(int argc, char** argv) {
 			axisLine4.line.startPosition = axisLine3.line.endPosition; // 시작점
 			static float length4 = 1.0f;
 			ImGui::InputFloat("Lenght4", &length4, 0.01f, 1.0f, "%.3f");
-			static float angle4 = 1.0f;
+			static float angle4 = 0.0f;
 			ImGui::InputFloat("Angle4", &angle4, 1.0f, 1.0f, "%.3f");
 			axisLine4.line.length = length4; // 길이
 			axisLine4.line.angle = angle4; // 각도
@@ -264,7 +277,7 @@ int main(int argc, char** argv) {
 			axisLine5.line.startPosition = axisLine4.line.endPosition; // 시작점
 			static float length5 = 1.0f;
 			ImGui::InputFloat("Lenght5", &length5, 0.01f, 1.0f, "%.3f");
-			static float angle5 = 1.0f;
+			static float angle5 = 0.0f;
 			ImGui::InputFloat("Angle5", &angle5, 1.0f, 1.0f, "%.3f");
 			axisLine5.line.length = length5; // 길이
 			axisLine5.line.angle = angle5; // 각도
@@ -281,7 +294,7 @@ int main(int argc, char** argv) {
 			axisLine6.line.startPosition = axisLine5.line.endPosition; // 시작점
 			static float length6 = 1.0f;
 			ImGui::InputFloat("Lenght6", &length6, 0.01f, 1.0f, "%.3f");
-			static float angle6 = 1.0f;
+			static float angle6 = 0.0f;
 			ImGui::InputFloat("Angle6", &angle6, 1.0f, 1.0f, "%.3f");
 			axisLine6.line.length = length6; // 길이
 			axisLine6.line.angle = angle6; // 각도
@@ -332,7 +345,6 @@ int main(int argc, char** argv) {
 			ImGui::Separator();
 			ImGui::End();
 		}
-
 
 		// Rendering
 		ImGui::Render();
