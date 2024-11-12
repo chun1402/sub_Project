@@ -6,7 +6,6 @@ void AxisLine::drawLine() {
 		{line.endPosition, mLineColor}     
 	};
 
-	GLuint VAO, VBO;
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
 
@@ -42,7 +41,6 @@ void AxisLine::drawPoint() {
 		{line.endPosition, mPointColor}    
 	};
 
-	GLuint VAO, VBO;
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
 

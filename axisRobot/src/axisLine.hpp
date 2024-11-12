@@ -1,46 +1,52 @@
 #ifndef AXISLINE_HPP
 #define AXISLINE_HPP
-#include <stdio.h>
 #include <GL/glew.h>
-#include <GLFW/glfw3.h> // Will drag system OpenGL headers
+#include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp> 
 #include <iostream>
 #include <vector>
+#include <cmath>
 
 class AxisLine {
 public:
-	struct Line {
-		glm::vec3 startPosition = glm::vec3(0.0f, 0.0f, 0.0f);
-		double length = 0.0f;
-		double angle = 0.0f; 
-		glm::vec3 endPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+    struct Line {
+        glm::vec3 startPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+        double length = 0.0f;
+        double angle = 0.0f; // 상대 각도 (부모로부터의 각도 차이)
+        glm::vec3 endPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+        double cumulativeAngle = 0.0f; // 절대각도
 
-		void calculateEndPosition() {
-			// Convert angle from degrees to radians
-			double angleRad = glm::radians(angle);
-			// Calculate end position based on start position, length, and angle
-			endPosition.x = startPosition.x + length * cos(angleRad);
-			endPosition.y = startPosition.y + length * sin(angleRad);
-			endPosition.z = startPosition.z;
-		}
-	};
+        void calculateEndPosition(double parentAngle) {
+            // 부모의 절대각도와 현재 상대각도를 더해서 절대각도 계산
+            cumulativeAngle = parentAngle + angle;
 
-	struct Vertex {
-		glm::vec3 position;
-		glm::vec3 color;
-	};
+            // 각도를 라디안으로 변환
+            double angleRad = glm::radians(cumulativeAngle);
 
-	Line line;
-	glm::vec3 mLineColor = glm::vec3(0.0f, 0.0f, 0.0f);
-	glm::vec3 mPointColor = glm::vec3(0.0f, 0.0f, 0.0f);
-	float mLineWidth = 1.0f;
-	float mPointSize = 10.0f;
-	void draw();
+            // 종단 위치 계산
+            endPosition.x = startPosition.x + length * cos(angleRad);
+            endPosition.y = startPosition.y + length * sin(angleRad);
+            endPosition.z = startPosition.z;
+        }
+    };
+	 struct Vertex {
+		 glm::vec3 position;
+		 glm::vec3 color;
+	 };
+
+    Line line;
+    glm::vec3 mLineColor = glm::vec3(0.0f, 0.0f, 0.0f);
+    glm::vec3 mPointColor = glm::vec3(0.0f, 0.0f, 0.0f);
+    float mLineWidth = 1.0f;
+    float mPointSize = 10.0f;
+    void draw();
 private:
-	void drawLine();
-	void drawPoint();
+	 GLuint VAO, VBO;
+    void drawLine();
+    void drawPoint();
 };
 
 #endif
+

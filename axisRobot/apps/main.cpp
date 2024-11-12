@@ -101,7 +101,7 @@ int main(int argc, char** argv) {
 	bool show_color_setting = true;
 	bool show_line_position = true;
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-	
+
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_PROGRAM_POINT_SIZE); //point size setting 하려면 필요함.
 
@@ -110,15 +110,16 @@ int main(int argc, char** argv) {
 	ourShader.use(); // don't forget to activate/use the shader before setting uniforms!
 
 	glm::mat4 matProj, matView;
-	
+
 	// 6axis class
-	AxisLine axisLine1;
-	AxisLine axisLine2;
-	AxisLine axisLine3;
-	AxisLine axisLine4;
-	AxisLine axisLine5;
-	AxisLine axisLine6;
-	std::vector<AxisLine> skeleton = {axisLine1, axisLine2, axisLine3, axisLine4, axisLine5, axisLine6};
+	std::vector<AxisLine> axisLines(6);
+	// 6axis setting
+	std::vector<double> lengths(6, 1.0);
+	std::vector<double> angles(6);
+	std::vector<double> linesWidth(6, 1.0);
+	std::vector<double> pointsSize(6, 10.0);
+	std::vector<ImVec4> colors(6);
+	double parentAngle = 0.0;
 
 	// Main loop
 	while (!glfwWindowShouldClose(window)) {
@@ -128,14 +129,12 @@ int main(int argc, char** argv) {
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
-		
+
 		//input keyboard
 		processInput(window);
 		keyboard_camera(window, 0.01);
 
 		// imgui window
-		//if (show_demo_window)
-		//	ImGui::ShowDemoWindow(&show_demo_window);
 		if (show_another_window) {
 			ImGui::Begin("Another Window");   			
 			ImGui::Text("line, color open window!");
@@ -152,160 +151,41 @@ int main(int argc, char** argv) {
 		//line start position, end position
 		if(show_line_position) {
 			ImGui::Begin("Line position", &show_line_position, ImGuiWindowFlags_AlwaysAutoResize);   			
-			ImGui::Text("Line 1 Position    ");
-			ImGui::Text("x:%.2f", axisLine1.line.startPosition.x);
-			ImGui::Text("y:%.2f", axisLine1.line.startPosition.y);
-			ImGui::Text("z:%.2f", axisLine1.line.startPosition.z);
-			ImGui::Text("length:%.2f", axisLine1.line.length);
-			ImGui::Text("angle:%.2f", axisLine1.line.angle);
-			ImGui::Separator();
-
-			ImGui::Text("Line 2 Position   ");
-			ImGui::Text("x:%.2f", axisLine2.line.startPosition.x);
-			ImGui::Text("y:%.2f", axisLine2.line.startPosition.y);
-			ImGui::Text("z:%.2f", axisLine2.line.startPosition.z);
-			ImGui::Text("length:%.2f", axisLine2.line.length);
-			ImGui::Text("angle:%.2f", axisLine2.line.angle);
-			ImGui::Separator();		
-
-			ImGui::Text("Line 3 Position   ");
-			ImGui::Text("x:%.2f", axisLine3.line.startPosition.x);
-			ImGui::Text("y:%.2f", axisLine3.line.startPosition.y);
-			ImGui::Text("z:%.2f", axisLine3.line.startPosition.z);
-			ImGui::Text("length:%.2f", axisLine3.line.length);
-			ImGui::Text("angle:%.2f", axisLine3.line.angle);
-			ImGui::Separator();				
-
-			ImGui::Text("Line 4 Position   ");
-			ImGui::Text("x:%.2f", axisLine4.line.startPosition.x);
-			ImGui::Text("y:%.2f", axisLine4.line.startPosition.y);
-			ImGui::Text("z:%.2f", axisLine4.line.startPosition.z);
-			ImGui::Text("length:%.2f", axisLine4.line.length);
-			ImGui::Text("angle:%.2f", axisLine4.line.angle);
-			ImGui::Separator();				
-
-			ImGui::Text("Line 5 Position   ");
-			ImGui::Text("x:%.2f", axisLine5.line.startPosition.x);
-			ImGui::Text("y:%.2f", axisLine5.line.startPosition.y);
-			ImGui::Text("z:%.2f", axisLine5.line.startPosition.z);
-			ImGui::Text("length:%.2f", axisLine5.line.length);
-			ImGui::Text("angle:%.2f", axisLine5.line.angle);
-			ImGui::Separator();				
-
-			ImGui::Text("Line 6 Position   ");
-			ImGui::Text("x:%.2f", axisLine6.line.startPosition.x);
-			ImGui::Text("y:%.2f", axisLine6.line.startPosition.y);
-			ImGui::Text("z:%.2f", axisLine6.line.startPosition.z);
-			ImGui::Text("length:%.2f", axisLine6.line.length);
-			ImGui::Text("angle:%.2f", axisLine6.line.angle);
-			ImGui::Separator();				
+			for(int i = 0; i < axisLines.size(); i++) {
+				ImGui::Text("Line < %d >", i + 1);
+				ImGui::Text("Start Position");
+				ImGui::Text("x:%.2f ", axisLines[i].line.startPosition.x); ImGui::SameLine();
+				ImGui::Text("y:%.2f ", axisLines[i].line.startPosition.y); ImGui::SameLine();
+				ImGui::Text("z:%.2f ", axisLines[i].line.startPosition.z);
+				ImGui::Text("End Position");
+				ImGui::Text("x:%.2f ", axisLines[i].line.endPosition.x); ImGui::SameLine();
+				ImGui::Text("y:%.2f ", axisLines[i].line.endPosition.y); ImGui::SameLine();
+				ImGui::Text("z:%.2f ", axisLines[i].line.endPosition.z);
+				ImGui::Text("length:%.2f", axisLines[i].line.length);
+				ImGui::Text("angle:%.2f", axisLines[i].line.angle);
+				ImGui::Text("cumulativeAngle:%.2f", axisLines[i].line.cumulativeAngle);
+				ImGui::Separator();
+			} 
 			ImGui::End();
 
 		}
 
 		if(show_line_setting) {
 			ImGui::Begin("Line setting", &show_line_setting, ImGuiWindowFlags_AlwaysAutoResize);   			
-			ImGui::Text("Line 1 setting");
-			axisLine1.line.startPosition = glm::vec3(0.0f, 0.0f, 0.0f); // 시작점
-			static float length1 = 1.0f;
-			ImGui::InputFloat("Lenght1", &length1, 0.01f, 1.0f, "%.3f");
-			static float angle1 = 0.0f;
-			ImGui::InputFloat("Angle1", &angle1, 1.0f, 1.0f, "%.3f");
-			axisLine1.line.length = length1; // 길이
-			axisLine1.line.angle = angle1; // 각도
-			axisLine1.line.calculateEndPosition();
-			static float lineWidth1 = 1.0f;
-			ImGui::SliderFloat("Line width1", &lineWidth1, 1, 20, "%.0f");			
-			axisLine1.mLineWidth = lineWidth1;
-			static float pointSize1 = 10.0f;
-			ImGui::SliderFloat("Point size1", &pointSize1, 1, 100, "%.0f");			
-			axisLine1.mPointSize = pointSize1;
-			ImGui::Separator();
-
-			ImGui::Text("Line 2 setting");
-			axisLine2.line.startPosition = axisLine1.line.endPosition; // 시작점
-			static float length2 = 1.0f;
-			ImGui::InputFloat("Lenght2", &length2, 0.01f, 1.0f, "%.3f");
-			static float angle2 = 0.0f;
-			ImGui::InputFloat("Angle2", &angle2, 0.0f, 1.0f, "%.3f");
-			axisLine2.line.length = length2; // 길이
-			axisLine2.line.angle = angle2; // 각도
-			axisLine2.line.calculateEndPosition();
-			static float lineWidth2 = 1.0f;
-			ImGui::SliderFloat("Line width2", &lineWidth2, 1, 20, "%.0f");			
-			axisLine2.mLineWidth = lineWidth2;
-			static float pointSize2 = 10.0f;
-			ImGui::SliderFloat("Point size2", &pointSize2, 1, 100, "%.0f");			
-			axisLine2.mPointSize = pointSize2;
-			ImGui::Separator();
-
-			ImGui::Text("Line 3 setting");
-			axisLine3.line.startPosition = axisLine2.line.endPosition; // 시작점
-			static float length3 = 1.0f;
-			ImGui::InputFloat("Lenght3", &length3, 0.01f, 1.0f, "%.3f");
-			static float angle3 = 0.0f;
-			ImGui::InputFloat("Angle3", &angle3, 1.0f, 1.0f, "%.3f");
-			axisLine3.line.length = length3; // 길이
-			axisLine3.line.angle = angle3; // 각도
-			axisLine3.line.calculateEndPosition();
-			static float lineWidth3 = 1.0f;
-			ImGui::SliderFloat("Line width3", &lineWidth3, 1, 20, "%.0f");			
-			axisLine3.mLineWidth = lineWidth3;
-			static float pointSize3 = 10.0f;
-			ImGui::SliderFloat("Point size3", &pointSize3, 1, 100, "%.0f");			
-			axisLine3.mPointSize = pointSize3;
-			ImGui::Separator();
-
-			ImGui::Text("Line 4 setting");
-			axisLine4.line.startPosition = axisLine3.line.endPosition; // 시작점
-			static float length4 = 1.0f;
-			ImGui::InputFloat("Lenght4", &length4, 0.01f, 1.0f, "%.3f");
-			static float angle4 = 0.0f;
-			ImGui::InputFloat("Angle4", &angle4, 1.0f, 1.0f, "%.3f");
-			axisLine4.line.length = length4; // 길이
-			axisLine4.line.angle = angle4; // 각도
-			axisLine4.line.calculateEndPosition();
-			static float lineWidth4 = 1.0f;
-			ImGui::SliderFloat("Line width4", &lineWidth4, 1, 20, "%.0f");			
-			axisLine4.mLineWidth = lineWidth4;
-			static float pointSize4 = 10.0f;
-			ImGui::SliderFloat("Point size4", &pointSize4, 1, 100, "%.0f");			
-			axisLine4.mPointSize = pointSize4;
-			ImGui::Separator();
-
-			ImGui::Text("Line 5 setting");
-			axisLine5.line.startPosition = axisLine4.line.endPosition; // 시작점
-			static float length5 = 1.0f;
-			ImGui::InputFloat("Lenght5", &length5, 0.01f, 1.0f, "%.3f");
-			static float angle5 = 0.0f;
-			ImGui::InputFloat("Angle5", &angle5, 1.0f, 1.0f, "%.3f");
-			axisLine5.line.length = length5; // 길이
-			axisLine5.line.angle = angle5; // 각도
-			axisLine5.line.calculateEndPosition();
-			static float lineWidth5 = 1.0f;
-			ImGui::SliderFloat("Line width5", &lineWidth5, 1, 20, "%.0f");			
-			axisLine5.mLineWidth = lineWidth5;
-			static float pointSize5 = 10.0f;
-			ImGui::SliderFloat("Point size5", &pointSize5, 1, 100, "%.0f");			
-			axisLine5.mPointSize = pointSize5;
-			ImGui::Separator();
-
-			ImGui::Text("Line 6 setting");
-			axisLine6.line.startPosition = axisLine5.line.endPosition; // 시작점
-			static float length6 = 1.0f;
-			ImGui::InputFloat("Lenght6", &length6, 0.01f, 1.0f, "%.3f");
-			static float angle6 = 0.0f;
-			ImGui::InputFloat("Angle6", &angle6, 1.0f, 1.0f, "%.3f");
-			axisLine6.line.length = length6; // 길이
-			axisLine6.line.angle = angle6; // 각도
-			axisLine6.line.calculateEndPosition();
-			static float lineWidth6 = 1.0f;
-			ImGui::SliderFloat("Line width6", &lineWidth6, 1, 20, "%.0f");			
-			axisLine6.mLineWidth = lineWidth6;
-			static float pointSize6 = 10.0f;
-			ImGui::SliderFloat("Point size6", &pointSize6, 1, 100, "%.0f");			
-			axisLine6.mPointSize = pointSize6;
-			ImGui::Separator();
+			for(int i = 0; i < axisLines.size(); i++) {  
+				ImGui::Text("Line %d setting", i + 1);
+				axisLines[i].line.startPosition = i == 0 ? glm::vec3(0.0f, 0.0f, 0.0f) : axisLines[i - 1].line.endPosition;
+				ImGui::InputDouble(("Length" + std::to_string(i+1)).c_str(), &lengths[i], 0.01, 1.0, "%.3f");
+				ImGui::InputDouble(("Angle" + std::to_string(i+1)).c_str(), &angles[i], 0.01, 1.0, "%.3f");
+				ImGui::InputDouble(("Line Width" + std::to_string(i+1)).c_str(), &linesWidth[i], 0.01, 1.0, "%.3f");
+				ImGui::InputDouble(("Point Size" + std::to_string(i+1)).c_str(), &pointsSize[i], 0.01, 1.0, "%.3f");
+				parentAngle = i == 0 ? 0 : parentAngle + angles[i - 1];
+				axisLines[i].line.length = lengths[i];
+				axisLines[i].line.angle = angles[i];
+				axisLines[i].line.calculateEndPosition(parentAngle);
+				axisLines[i].mLineWidth = linesWidth[i];
+				axisLines[i].mPointSize = pointsSize[i];
+			}
 			ImGui::End();
 		}
 
@@ -314,35 +194,15 @@ int main(int argc, char** argv) {
 			ImGui::Text("Colr Setting window!");
 			ImGui::Separator();
 			ImGui::Text("Line color!");
-			static float col1[3] = { 0.0f,0.0f,0.0f };
-			static float col2[3] = { 1.0f,1.0f,1.0f };
-			static float col3[3] = { 0.0f,0.0f,0.0f };
-			static float col4[3] = { 1.0f,1.0f,1.0f };
-			static float col5[3] = { 0.0f,0.0f,0.0f };
-			static float col6[3] = { 1.0f,1.0f,1.0f };
-
-			ImGui::ColorEdit3("color 1", col1);
-			ImGui::ColorEdit3("color 2", col2);
-			ImGui::ColorEdit3("color 3", col3);
-			ImGui::ColorEdit3("color 4", col4);
-			ImGui::ColorEdit3("color 5", col5);
-			ImGui::ColorEdit3("color 6", col6);
-			//line color
-			axisLine1.mLineColor = glm::make_vec3(col1);
-			axisLine2.mLineColor = glm::make_vec3(col2);
-			axisLine3.mLineColor = glm::make_vec3(col3);
-			axisLine4.mLineColor = glm::make_vec3(col4);
-			axisLine5.mLineColor = glm::make_vec3(col5);
-			axisLine6.mLineColor = glm::make_vec3(col6);
-			//point color
-			axisLine1.mPointColor = glm::make_vec3(col1); 
-			axisLine2.mPointColor = glm::make_vec3(col2); 
-			axisLine3.mPointColor = glm::make_vec3(col3); 
-			axisLine4.mPointColor = glm::make_vec3(col4); 
-			axisLine5.mPointColor = glm::make_vec3(col5); 
-			axisLine6.mPointColor = glm::make_vec3(col6); 
-
-			ImGui::Separator();
+			for(int i = 0; i < axisLines.size(); i++) {
+				std::string label = "color" + std::to_string(i + 1);
+				ImGui::ColorEdit3(label.c_str(), (float*)&colors[i]); 
+				//line color
+				axisLines[i].mLineColor = glm::vec3(colors[i].x, colors[i].y, colors[i].z);
+				//point color
+				axisLines[i].mPointColor = glm::vec3(colors[i].x, colors[i].y, colors[i].z);
+				ImGui::Separator();
+			}
 			ImGui::End();
 		}
 
@@ -356,12 +216,8 @@ int main(int argc, char** argv) {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// draw
-		axisLine1.draw(); 
-		axisLine2.draw(); 
-		axisLine3.draw(); 
-		axisLine4.draw(); 
-		axisLine5.draw(); 
-		axisLine6.draw(); 
+		for(int i = 0; i < axisLines.size(); i++)
+			axisLines[i].draw();
 
 		// shader 
 		glm::mat4 model = glm::mat4(1.0f);
