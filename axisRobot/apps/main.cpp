@@ -1,15 +1,10 @@
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
-#include <stdio.h>
-#include <GL/glew.h>
-#include <GLFW/glfw3.h> // Will drag system OpenGL headers
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp> //value_ptr
 #include <iostream>
-#include "shader.hpp"
+#include <stdio.h>
 #include "axisLine.hpp"
+#include "shader.hpp"
 
 //camera
 double fov = 45.0f;
@@ -33,7 +28,6 @@ void processInput(GLFWwindow *window){
 		glfwSetWindowShouldClose(window, true);
 }
 
-//glm::mat view
 glm::mat4 makeViewMat(const glm::vec3 &pos, const glm::vec3 &dir) {
 	glm::mat4 mView = glm::mat4(1.0f);
 	mView = glm::rotate(mView, glm::radians(-dir.x), AxisX);
@@ -167,7 +161,6 @@ int main(int argc, char** argv) {
 				ImGui::Separator();
 			} 
 			ImGui::End();
-
 		}
 
 		if(show_line_setting) {
@@ -175,10 +168,11 @@ int main(int argc, char** argv) {
 			for(int i = 0; i < axisLines.size(); i++) {  
 				ImGui::Text("Line %d setting", i + 1);
 				axisLines[i].line.startPosition = i == 0 ? glm::vec3(0.0f, 0.0f, 0.0f) : axisLines[i - 1].line.endPosition;
-				ImGui::InputDouble(("Length" + std::to_string(i+1)).c_str(), &lengths[i], 0.01, 1.0, "%.3f");
-				ImGui::InputDouble(("Angle" + std::to_string(i+1)).c_str(), &angles[i], 0.01, 1.0, "%.3f");
-				ImGui::InputDouble(("Line Width" + std::to_string(i+1)).c_str(), &linesWidth[i], 0.01, 1.0, "%.3f");
-				ImGui::InputDouble(("Point Size" + std::to_string(i+1)).c_str(), &pointsSize[i], 0.01, 1.0, "%.3f");
+				ImGui::InputDouble(("Length" + std::to_string(i + 1)).c_str(), &lengths[i], 0.1, 1.0, "%.2f");
+				ImGui::InputDouble(("Angle" + std::to_string(i + 1)).c_str(), &angles[i], 1.0, 1.0, "%.2f");
+				ImGui::InputDouble(("Line Width" + std::to_string(i + 1)).c_str(), &linesWidth[i], 1.0, 1.0, "%.2f");
+				ImGui::InputDouble(("Point Size" + std::to_string(i + 1)).c_str(), &pointsSize[i], 1.0, 1.0, "%.2f");
+
 				parentAngle = i == 0 ? 0 : parentAngle + angles[i - 1];
 				axisLines[i].line.length = lengths[i];
 				axisLines[i].line.angle = angles[i];

@@ -14,12 +14,11 @@ public:
     struct Line {
         glm::vec3 startPosition = glm::vec3(0.0f, 0.0f, 0.0f);
         double length = 0.0f;
-        double angle = 0.0f; // 상대 각도 (부모로부터의 각도 차이)
-        glm::vec3 endPosition = glm::vec3(0.0f, 0.0f, 0.0f);
-        double cumulativeAngle = 0.0f; // 절대각도
-
+        double angle = 0.0f; 
+		  glm::vec3 endPosition = glm::vec3(0.0f, 0.0f, 0.0f);
+        double cumulativeAngle = 0.0f; 
         void calculateEndPosition(double parentAngle) {
-            // 부모의 절대각도와 현재 상대각도를 더해서 절대각도 계산
+            // 부모의 절대각도와 현재각도를 더해서 절대각도 계산
             cumulativeAngle = parentAngle + angle;
 
             // 각도를 라디안으로 변환
@@ -42,9 +41,11 @@ public:
     float mLineWidth = 1.0f;
     float mPointSize = 10.0f;
     void draw();
+	 AxisLine();
+	 ~AxisLine();
 private:
 	 GLuint VAO, VBO;
-    void drawLine();
+    void drawLineAndPoint();
     void drawPoint();
 };
 
